@@ -1,0 +1,9 @@
+[project]
+name = "pyxel-test"
+version = "0.1.0"
+description = "pyxelでなんか作ってみる"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyxel==2.2.10",
+]
