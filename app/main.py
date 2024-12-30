@@ -1,10 +1,6 @@
 import math
-import os
 
 import pyxel
-
-# この行を追加して、ファイルの存在を確認します
-os.path.isfile("./main.py")
 
 
 class App:
