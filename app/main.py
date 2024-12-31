@@ -6,12 +6,17 @@ import pyxel
 class App:
     def __init__(self):
         pyxel.init(120, 120, title="玉入れられ")
+        pyxel.load("assets/assets.pyxres")
 
         # キャラクターの初期設定
         self.x = pyxel.width // 2  # 画面中央のX座標
         self.y = pyxel.height // 2  # 画面中央のY座標
         self.direction = "down"  # 初期の向き（"up", "down", "left", "right"）
         self.score = 0  # スコアの初期値
+
+        self.dot_count = 0
+        self.dot_speed = 0
+        self.dots_until_speed_change = random.randint(3, 5)
 
         # 各向きに対応するキャラクターのパターン
         self.directions = {
@@ -62,6 +67,10 @@ class App:
 
         # 一定時間ごとに点を生成
         if pyxel.frame_count % 30 == 0:  # 30フレームごと
+            self.dot_count += 1
+            if self.dot_count >= self.dots_until_speed_change:
+                self.dot_speed = random.choice(range(-30, 31, 10))
+                self.dots_until_speed_change = random.randint(3, 5)
             self.spawn_dot()
 
         # 点の位置を更新
@@ -71,13 +80,11 @@ class App:
 
         # 中央に到達した点を削除し、スコア加算を行う
         for dot in self.dots[:]:
-            if (
-                abs(dot["x"] - pyxel.width // 2) < 2
-                and abs(dot["y"] - pyxel.height // 2) < 2
-            ):
+            if abs(dot["x"] - pyxel.width // 2) < 2 and abs(dot["y"] - pyxel.height // 2) < 2:
                 # 弾の方向と自分の向きが一致していたらスコア+1
                 if self.direction == dot["direction"]:
                     self.score += 1
+                    pyxel.play(0, 0)
                 self.dots.remove(dot)
 
     def draw(self):
@@ -105,24 +112,24 @@ class App:
             x = pyxel.width // 2
             y = 0  # 画面の上端
             dx = 0  # 横方向には移動しない
-            dy = (pyxel.height // 2 - y) / 50  # 中央に向かって下方向に移動
+            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)  # 中央に向かって下方向に移動
             direction = "up"
         elif side == "bottom":
             x = pyxel.width // 2
             y = pyxel.height  # 画面の下端
             dx = 0  # 横方向には移動しない
-            dy = (pyxel.height // 2 - y) / 50  # 中央に向かって上方向に移動
+            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)  # 中央に向かって上方向に移動
             direction = "down"
         elif side == "left":
             x = 0  # 画面の左端
             y = pyxel.height // 2
-            dx = (pyxel.width // 2 - x) / 50  # 中央に向かって右方向に移動
+            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)  # 中央に向かって右方向に移動
             dy = 0  # 縦方向には移動しない
             direction = "left"
         elif side == "right":
             x = pyxel.width  # 画面の右端
             y = pyxel.height // 2
-            dx = (pyxel.width // 2 - x) / 50  # 中央に向かって左方向に移動
+            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)  # 中央に向かって左方向に移動
             dy = 0  # 縦方向には移動しない
             direction = "right"
 
