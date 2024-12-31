@@ -13,7 +13,7 @@ class Direction(Enum):
 
 class App:
     def __init__(self):
-        pyxel.init(120, 120, title="玉入れられ")
+        pyxel.init(128, 128, title="玉入れられ")
         pyxel.load("assets/assets.pyxres")
 
         # キャラクターの初期設定
@@ -25,38 +25,6 @@ class App:
         self.dot_count = 0
         self.dot_speed = 0
         self.dots_until_speed_change = random.randint(2, 4)
-
-        # 各向きに対応するキャラクターのパターン
-        self.directions = {
-            Direction.UP: [
-                [1, 0, 0, 0, 1],
-                [1, 0, 0, 0, 1],
-                [0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0],
-                [0, 0, 1, 0, 0],
-            ],
-            Direction.RIGHT: [
-                [0, 0, 0, 1, 1],
-                [0, 1, 1, 0, 0],
-                [1, 0, 0, 0, 0],
-                [0, 1, 1, 0, 0],
-                [0, 0, 0, 1, 1],
-            ],
-            Direction.DOWN: [
-                [0, 0, 1, 0, 0],
-                [0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0],
-                [1, 0, 0, 0, 1],
-                [1, 0, 0, 0, 1],
-            ],
-            Direction.LEFT: [
-                [1, 1, 0, 0, 0],
-                [0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 1],
-                [0, 0, 1, 1, 0],
-                [1, 1, 0, 0, 0],
-            ],
-        }
 
         # 点のデータを格納するリスト
         self.dots = []
@@ -77,12 +45,10 @@ class App:
         if pyxel.frame_count % 30 == 0:  # 30フレームごと
             self.dot_count += 1
             self.spawn_dot()
-            print(f"{self.dot_count} : {self.dots_until_speed_change}")
             if self.dot_count >= self.dots_until_speed_change:
                 self.dot_count = 0
                 self.dot_speed = random.choice(range(-30, 31, 10))
                 self.dots_until_speed_change = random.randint(2, 4)
-                print("*" * 10)
 
         # 点の位置を更新
         for dot in self.dots:
@@ -99,18 +65,25 @@ class App:
                 self.dots.remove(dot)
 
     def draw(self):
-        pyxel.cls(7)  # 背景を白に設定
+        # 背景を描画
+        pyxel.cls(0)
+
+        # タイルを描画
+        pyxel.bltm(0, 0, 0, 0, 0, 128, 128)
 
         # 向きに応じたキャラクターのドットパターンを描画
-        pattern = self.directions[self.direction]
-        for i, row in enumerate(pattern):
-            for j, col in enumerate(row):
-                if col == 1:
-                    pyxel.pset(self.x + j - 2, self.y + i - 2, pyxel.COLOR_BLACK)
+        if self.direction == Direction.UP:
+            pyxel.blt(self.x - 8, self.y - 8, 0, 0, 0, 16, 16, 6)
+        elif self.direction == Direction.DOWN:
+            pyxel.blt(self.x - 8, self.y - 8, 0, 16, 0, 16, 16, 6)
+        elif self.direction == Direction.LEFT:
+            pyxel.blt(self.x - 8, self.y - 8, 0, 32, 0, 16, 16, 6)
+        elif self.direction == Direction.RIGHT:
+            pyxel.blt(self.x - 8, self.y - 8, 0, 48, 0, 16, 16, 6)
 
-        # 点を描画
+        # 飛んでくるドーナツを描画
         for dot in self.dots:
-            pyxel.pset(int(dot["x"]), int(dot["y"]), 9)  # 点の色を指定して描画
+            pyxel.blt(int(dot["x"] - 5), int(dot["y"] - 5), 0, 0, 16, 10, 10, 6)
 
         # スコアを右上に表示
         pyxel.text(10, 10, f"Score: {self.score}", pyxel.COLOR_BLACK)
