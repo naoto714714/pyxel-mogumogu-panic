@@ -1,6 +1,14 @@
 import random
+from enum import Enum
 
 import pyxel
+
+
+class Direction(Enum):
+    UP = "up"
+    DOWN = "down"
+    LEFT = "left"
+    RIGHT = "right"
 
 
 class App:
@@ -11,7 +19,7 @@ class App:
         # キャラクターの初期設定
         self.x = pyxel.width // 2  # 画面中央のX座標
         self.y = pyxel.height // 2  # 画面中央のY座標
-        self.direction = "down"  # 初期の向き（"up", "down", "left", "right"）
+        self.direction = "Direction.DOWN  # 初期の向き（"up", "down", "left", "right"）
         self.score = 0  # スコアの初期値
 
         self.dot_count = 0
@@ -20,28 +28,28 @@ class App:
 
         # 各向きに対応するキャラクターのパターン
         self.directions = {
-            "up": [
+            Direction.UP: [
                 [1, 0, 0, 0, 1],
                 [1, 0, 0, 0, 1],
                 [0, 1, 0, 1, 0],
                 [0, 1, 0, 1, 0],
                 [0, 0, 1, 0, 0],
             ],
-            "right": [
+            Direction.RIGHT: [
                 [0, 0, 0, 1, 1],
                 [0, 1, 1, 0, 0],
                 [1, 0, 0, 0, 0],
                 [0, 1, 1, 0, 0],
                 [0, 0, 0, 1, 1],
             ],
-            "down": [
+            Direction.DOWN: [
                 [0, 0, 1, 0, 0],
                 [0, 1, 0, 1, 0],
                 [0, 1, 0, 1, 0],
                 [1, 0, 0, 0, 1],
                 [1, 0, 0, 0, 1],
             ],
-            "left": [
+            Direction.LEFT: [
                 [1, 1, 0, 0, 0],
                 [0, 0, 1, 1, 0],
                 [0, 0, 0, 0, 1],
@@ -57,13 +65,13 @@ class App:
     def update(self):
         # 十字キーでキャラクターの向きを変更
         if pyxel.btn(pyxel.KEY_RIGHT):
-            self.direction = "right"
+            self.direction = Direction.RIGHT
         elif pyxel.btn(pyxel.KEY_LEFT):
-            self.direction = "left"
+            self.direction = Direction.LEFT
         elif pyxel.btn(pyxel.KEY_UP):
-            self.direction = "up"
+            self.direction = Direction.UP
         elif pyxel.btn(pyxel.KEY_DOWN):
-            self.direction = "down"
+            self.direction = Direction.DOWN
 
         # 一定時間ごとに点を生成
         if pyxel.frame_count % 30 == 0:  # 30フレームごと
@@ -108,33 +116,32 @@ class App:
         pyxel.text(10, 10, f"Score: {self.score}", pyxel.COLOR_BLACK)
 
     def spawn_dot(self):
-        """画面中央の真横または垂直に当たる位置から点を生成"""
-        side = random.choice(["top", "bottom", "left", "right"])
+        side = random.choice([Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT])
 
-        if side == "top":
+        if side == Direction.UP:
             x = pyxel.width // 2
-            y = 0  # 画面の上端
-            dx = 0  # 横方向には移動しない
-            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)  # 中央に向かって下方向に移動
-            direction = "up"
-        elif side == "bottom":
+            y = 0
+            dx = 0
+            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)
+            direction = Direction.UP
+        elif side == Direction.DOWN:
             x = pyxel.width // 2
-            y = pyxel.height  # 画面の下端
-            dx = 0  # 横方向には移動しない
-            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)  # 中央に向かって上方向に移動
-            direction = "down"
-        elif side == "left":
-            x = 0  # 画面の左端
+            y = pyxel.height
+            dx = 0
+            dy = (pyxel.height // 2 - y) / (60 - self.dot_speed)
+            direction = Direction.DOWN
+        elif side == Direction.LEFT:
+            x = 0
             y = pyxel.height // 2
-            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)  # 中央に向かって右方向に移動
-            dy = 0  # 縦方向には移動しない
-            direction = "left"
-        elif side == "right":
-            x = pyxel.width  # 画面の右端
+            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)
+            dy = 0
+            direction = Direction.LEFT
+        elif side == Direction.RIGHT:
+            x = pyxel.width
             y = pyxel.height // 2
-            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)  # 中央に向かって左方向に移動
-            dy = 0  # 縦方向には移動しない
-            direction = "right"
+            dx = (pyxel.width // 2 - x) / (60 - self.dot_speed)
+            dy = 0
+            direction = Direction.RIGHT
 
         self.dots.append({"x": x, "y": y, "dx": dx, "dy": dy, "direction": direction})
 
