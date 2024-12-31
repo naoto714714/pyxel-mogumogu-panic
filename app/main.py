@@ -19,7 +19,7 @@ class App:
         # キャラクターの初期設定
         self.x = pyxel.width // 2  # 画面中央のX座標
         self.y = pyxel.height // 2  # 画面中央のY座標
-        self.direction = "Direction.DOWN  # 初期の向き（"up", "down", "left", "right"）
+        self.direction = Direction.DOWN  # 初期の向き
         self.score = 0  # スコアの初期値
 
         self.dot_count = 0
