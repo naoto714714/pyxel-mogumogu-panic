@@ -24,6 +24,7 @@ class App:
 
         self.dot_count = 0
         self.dot_speed = 0
+        self.dot_interval = 30
         self.dots_until_speed_change = random.randint(2, 4)
 
         # 点のデータを格納するリスト
@@ -42,13 +43,14 @@ class App:
             self.direction = Direction.DOWN
 
         # 一定時間ごとに点を生成
-        if pyxel.frame_count % 30 == 0:  # 30フレームごと
+        if pyxel.frame_count % self.dot_interval == 0:
             self.dot_count += 1
             self.spawn_dot()
             if self.dot_count >= self.dots_until_speed_change:
                 self.dot_count = 0
                 self.dot_speed = random.choice(range(-30, 31, 10))
-                self.dots_until_speed_change = random.randint(2, 4)
+                self.dot_interval = max(10, self.dot_interval - 1)
+                self.dots_until_speed_change = random.randint(3, 5)
 
         # 点の位置を更新
         for dot in self.dots:
