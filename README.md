@@ -1,6 +1,6 @@
 # ガマグチくんのもぐもぐパニック
 ## 概要
-[Click to Play](https://naoto714714.github.io/pyxel-test/)
+[Click to Play](https://naoto714714.github.io/pyxel-mogumogu-panic/)
 
 - Pyxelで開発されたアクションゲーム
 - 画面中央のキャラクター「ガマグチくん」を操作し、四方から飛んでくるドーナツを食べる
