@@ -15,12 +15,22 @@ class App:
     def __init__(self):
         pyxel.init(128, 128, title="玉入れられ")
         pyxel.load("assets/assets.pyxres")
+        self.reset_game()
+
+    def reset_game(self):
+        pyxel.sound(5).set_volumes("4")
+        pyxel.sound(6).set_volumes("4")
+        pyxel.sound(7).set_volumes("4")
+        pyxel.playm(0, loop=True)
+
+        self.game_over = False
 
         # キャラクターの初期設定
         self.x = pyxel.width // 2  # 画面中央のX座標
         self.y = pyxel.height // 2  # 画面中央のY座標
-        self.direction = Direction.DOWN  # 初期の向き
+        self.direction = Direction.LEFT  # 初期の向き
         self.score = 0  # スコアの初期値
+        self.life = 3  # ライフの初期値
 
         self.dot_count = 0
         self.dot_speed = 0
@@ -29,9 +39,13 @@ class App:
 
         # 点のデータを格納するリスト
         self.dots = []
-        pyxel.run(self.update, self.draw)
 
     def update(self):
+        if self.game_over:
+            if pyxel.btnp(pyxel.KEY_RETURN):
+                self.reset_game()
+            return
+
         # 十字キーでキャラクターの向きを変更
         if pyxel.btn(pyxel.KEY_RIGHT):
             self.direction = Direction.RIGHT
@@ -57,13 +71,20 @@ class App:
             dot["x"] += dot["dx"]
             dot["y"] += dot["dy"]
 
-        # 中央に到達した点を削除し、スコア加算を行う
+        # 中央に到達した点を削除し、スコア加算またはライフ減少を行う
         for dot in self.dots[:]:
             if abs(dot["x"] - pyxel.width // 2) < 2 and abs(dot["y"] - pyxel.height // 2) < 2:
                 # 弾の方向と自分の向きが一致していたらスコア+1
                 if self.direction == dot["direction"]:
                     self.score += 1
-                    pyxel.play(0, 0)
+                    pyxel.play(1, 0)
+                else:
+                    self.life -= 1  # スコアが加算されない場合はライフを-1
+                    pyxel.play(2, 1)
+                    if self.life <= 0:
+                        self.game_over = True
+                        pyxel.play(2, 2)
+                        pyxel.stop(0)
                 self.dots.remove(dot)
 
     def draw(self):
@@ -73,22 +94,32 @@ class App:
         # タイルを描画
         pyxel.bltm(0, 0, 0, 0, 0, 128, 128)
 
-        # 向きに応じたキャラクターのドットパターンを描画
-        if self.direction == Direction.UP:
-            pyxel.blt(self.x - 8, self.y - 8, 0, 0, 0, 16, 16, 6)
-        elif self.direction == Direction.DOWN:
-            pyxel.blt(self.x - 8, self.y - 8, 0, 16, 0, 16, 16, 6)
-        elif self.direction == Direction.LEFT:
-            pyxel.blt(self.x - 8, self.y - 8, 0, 32, 0, 16, 16, 6)
-        elif self.direction == Direction.RIGHT:
-            pyxel.blt(self.x - 8, self.y - 8, 0, 48, 0, 16, 16, 6)
+        if not self.game_over:
+            # 向きに応じたキャラクターのドットパターンを描画
+            if self.direction == Direction.UP:
+                pyxel.blt(self.x - 8, self.y - 8, 0, 0, 0, 16, 16, 6)
+            elif self.direction == Direction.DOWN:
+                pyxel.blt(self.x - 8, self.y - 8, 0, 16, 0, 16, 16, 6)
+            elif self.direction == Direction.LEFT:
+                pyxel.blt(self.x - 8, self.y - 8, 0, 32, 0, 16, 16, 6)
+            elif self.direction == Direction.RIGHT:
+                pyxel.blt(self.x - 8, self.y - 8, 0, 48, 0, 16, 16, 6)
 
-        # 飛んでくるドーナツを描画
-        for dot in self.dots:
-            pyxel.blt(int(dot["x"] - 5), int(dot["y"] - 5), 0, 0, 16, 10, 10, 6)
+            # 飛んでくるドーナツを描画
+            for dot in self.dots:
+                pyxel.blt(int(dot["x"] - 5), int(dot["y"] - 5), 0, 0, 16, 10, 10, 6)
 
-        # スコアを右上に表示
-        pyxel.text(10, 10, f"Score: {self.score}", pyxel.COLOR_BLACK)
+        # スコアを左上に表示
+        pyxel.text(5, 10, f"Score: {self.score}", pyxel.COLOR_BLACK)
+
+        # ライフを右上に表示
+        for i in range(self.life):
+            pyxel.blt(pyxel.width - 15 * (i + 1), 8, 0, 16, 16, 11, 10, 6)
+
+        if self.game_over:
+            # ゲームオーバー時のメッセージを表示
+            pyxel.text(pyxel.width // 2 - 20, pyxel.height // 2 - 10, "GAME OVER", pyxel.COLOR_RED)
+            pyxel.text(pyxel.width // 2 - 45, pyxel.height // 2 + 10, "Press Enter to Restart", pyxel.COLOR_BLACK)
 
     def spawn_dot(self):
         side = random.choice([Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT])
@@ -120,5 +151,8 @@ class App:
 
         self.dots.append({"x": x, "y": y, "dx": dx, "dy": dy, "direction": direction})
 
+    def run(self):
+        pyxel.run(self.update, self.draw)
 
-App()
+
+App().run()
